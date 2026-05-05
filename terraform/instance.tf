@@ -75,10 +75,10 @@ resource "null_resource" "ansible_inevntory" {
   }
   provisioner "local-exec" {
     command = <<-EOT
-      sudo sed -i '/\[webservers\]/,/^$/d' /home/labuser/project/ansible/inventory/hosts.ini
-      sudo bash -c 'echo "[webservers]" >> /home/labuser/project/ansible/inventory/hosts.ini'
+      sudo sed -i '/\[webservers\]/,/^$/d' /home/labuser/project/ansible/inventory/hosts.ini           #adjust this path accordingly
+      sudo bash -c 'echo "[webservers]" >> /home/labuser/project/ansible/inventory/hosts.ini'          #adjust this path accordingly
       %{for ip in aws_instance.VM[*].public_ip ~}
-      sudo bash -c 'echo "${ip} ansible_user=testuser ansible_ssh_private_key_file=~/.ssh/id_rsa" >> /home/labuser/project/ansible/inventory/hosts.ini'
+      sudo bash -c 'echo "${ip} ansible_user=testuser ansible_ssh_private_key_file=~/.ssh/id_rsa" >> /home/labuser/project/ansible/inventory/hosts.ini'                     #adjust this path accordingly
       %{endfor ~}
     EOT
   }
