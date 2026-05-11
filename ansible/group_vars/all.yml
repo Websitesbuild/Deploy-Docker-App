@@ -1,6 +1,6 @@
 ---
-app_name: "xyzblog"
+app_name: "V-Day-App"
 app_root: "/var/www/{{ app_name }}"
 listen_port: 8081
-repo_url: "https://github.com/Websitesbuild/Stopwatch.git"
+repo_url: "https://github.com/Websitesbuild/V-Day-2.1.git"
 server_name: "{{inventory_hostname }}"   # change to public IP / domain in production

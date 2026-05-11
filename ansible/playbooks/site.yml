@@ -1,8 +1,80 @@
 ---
-- name: Deploy XYZ Blog application
-  hosts: webservers
-  become: yes
-  vars_files:
-    - ../group_vars/all.yml   # adjust path if you run from project root
-  roles:
-    - role: webapps
+- name: Setup and Deploy V-Day App
+  hosts: app_servers
+  become: true
+
+  vars:
+    docker_image: "your-dockerhub-username/v-day-app:latest"
+    container_name: "v-day-container"
+    app_port: 7001
+
+  tasks:
+
+    # ── Install Docker ──────────────────────────────────────
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repo
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    # ── Fix docker.sock permission ──────────────────────────
+    - name: Give permission to docker.sock
+      file:
+        path: /var/run/docker.sock
+        mode: '0666'
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # ── Deploy App ──────────────────────────────────────────
+    - name: Pull Docker image from DockerHub
+      docker_image:
+        name: "{{ docker_image }}"
+        source: pull
+
+    - name: Stop existing container if running
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Run the app container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ docker_image }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "{{ app_port }}:80"
