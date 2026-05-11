@@ -55,7 +55,7 @@ pipeline {
 
         stage('Wait for EC2 to be Ready') {
             steps {
-                sh "sleep 40"   // give instances time to boot
+                sh "sleep 90"   // give instances time to boot
             }
         }
 
